@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refraction &amp; Mirrors | Thulir Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:#0A3D62; --accent:#F0A500; --green:#1ABC9C; --red:#E84545;
+  --light-bg:#F4F8FB; --card:#FFFFFF; --text:#1A2C3D; --muted:#7F8C9A; --border:#DDE6EE;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--light-bg);color:var(--text);min-height:100vh;user-select:none;-webkit-user-select:none;}
+
+/* HEADER */
+header{background:var(--primary);color:white;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 3px 12px rgba(0,0,0,.18);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-name{font-family:'Fredoka One';font-size:1.2rem;}
+.logo-sub{font-size:.68rem;opacity:.7;display:block;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.hchip{border-radius:20px;padding:4px 12px;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:5px;}
+.timer-chip{background:var(--accent);color:var(--primary);font-family:'Roboto Mono';font-size:.92rem;min-width:76px;text-align:center;transition:background .3s,color .3s;}
+.timer-chip.warn{background:#E67E22;color:white;}
+.timer-chip.crit{background:var(--red);color:white;animation:pulse 1s infinite;}
+.score-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:white;}
+.viol-chip{background:rgba(232,69,69,.2);border:1px solid rgba(232,69,69,.4);color:#FF8A8A;cursor:default;}
+.viol-chip.shake{animation:shake .4s;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* HOME */
+#home{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;}
+#home .hicon{font-size:72px;animation:float 3s ease-in-out infinite;margin-bottom:12px;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#home h1{font-family:'Fredoka One';font-size:2.2rem;color:var(--primary);margin-bottom:4px;}
+#home .sub{color:var(--muted);font-size:1rem;margin-bottom:28px;}
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px;width:100%;margin-bottom:28px;}
+.info-card{background:white;border-radius:16px;padding:14px;box-shadow:0 3px 12px rgba(10,61,98,.07);text-align:center;}
+.info-card .val{font-family:'Fredoka One';font-size:1.5rem;color:var(--primary);}
+.info-card .lbl{font-size:.75rem;color:var(--muted);font-weight:700;}
+.home-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.btn-primary{background:var(--primary);color:white;border:none;border-radius:50px;padding:14px 40px;font-family:'Fredoka One';font-size:1.15rem;cursor:pointer;box-shadow:0 5px 20px rgba(10,61,98,.28);transition:all .15s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(10,61,98,.36);}
+.btn-outline{background:white;color:var(--primary);border:2px solid var(--primary);border-radius:50px;padding:12px 32px;font-family:'Fredoka One';font-size:1.05rem;cursor:pointer;transition:all .15s;}
+.btn-outline:hover{background:var(--light-bg);}
+
+/* ENTRY */
+#entry{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+.entry-card{background:white;border-radius:24px;box-shadow:0 6px 28px rgba(10,61,98,.1);padding:30px 32px;max-width:500px;width:100%;}
+.entry-card h2{font-family:'Fredoka One';font-size:1.5rem;color:var(--primary);margin-bottom:18px;text-align:center;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-weight:800;font-size:.88rem;margin-bottom:6px;color:var(--primary);}
+.fg input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-family:'Nunito';font-size:1rem;font-weight:600;outline:none;transition:border .2s;}
+.fg input:focus{border-color:var(--primary);}
+.rules-box{background:var(--light-bg);border-radius:14px;padding:14px 16px;margin-bottom:14px;}
+.rules-box h4{font-family:'Fredoka One';font-size:.95rem;color:var(--primary);margin-bottom:8px;}
+.rule{font-size:.82rem;font-weight:600;padding:3px 0;display:flex;gap:8px;}
+.marking-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:14px;}
+.marking-tbl th{background:var(--primary);color:white;padding:7px 12px;font-family:'Fredoka One';text-align:center;}
+.marking-tbl td{padding:6px 12px;text-align:center;border-bottom:1px solid var(--border);font-weight:700;}
+.marking-tbl tr:last-child td{border:none;}
+.agree-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:.88rem;font-weight:700;cursor:pointer;}
+.agree-row input{width:18px;height:18px;cursor:pointer;}
+.entry-btns{display:flex;flex-direction:column;gap:8px;}
+
+/* QUIZ */
+#quiz-wrap{padding:16px 16px 40px;max-width:1080px;margin:0 auto;}
+.quiz-grid{display:grid;grid-template-columns:1fr 252px;gap:18px;align-items:start;}
+.q-card{background:white;border-radius:20px;box-shadow:0 4px 18px rgba(10,61,98,.08);padding:24px 26px;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.q-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+.q-num{background:var(--primary);color:white;border-radius:8px;padding:4px 14px;font-family:'Fredoka One';}
+.q-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{border-radius:20px;padding:3px 11px;font-size:.75rem;font-weight:800;}
+.tag.topic{background:#EBF5FB;color:var(--primary);}
+.tag.marks{background:#E8F8F5;color:#148F77;}
+.q-text{font-size:1.03rem;font-weight:700;line-height:1.65;margin-bottom:16px;}
+.options{display:flex;flex-direction:column;gap:8px;}
+.option{display:flex;align-items:flex-start;gap:12px;background:var(--light-bg);border:2px solid var(--border);border-radius:13px;padding:11px 14px;cursor:pointer;transition:all .18s;font-size:.96rem;font-weight:600;}
+.option:hover:not(.locked){border-color:var(--primary);background:#EBF5FB;transform:translateX(3px);}
+.option.selected{border-color:var(--primary);background:#EBF5FB;}
+.opt-lbl{width:26px;height:26px;border-radius:50%;background:white;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One';font-size:.85rem;flex-shrink:0;transition:all .18s;}
+.option.selected .opt-lbl{background:var(--primary);border-color:var(--primary);color:white;}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:8px;flex-wrap:wrap;}
+.nbtn{border:none;border-radius:50px;padding:9px 22px;font-family:'Fredoka One';font-size:.95rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.nbtn.solid{background:var(--primary);color:white;}
+.nbtn.solid:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(10,61,98,.25);}
+.nbtn.ghost{background:white;color:var(--primary);border:2px solid var(--primary);}
+.nbtn.ghost:hover{background:var(--light-bg);}
+.nbtn.clear{background:#ECF0F1;color:var(--muted);}
+.nbtn.amber{background:var(--accent);color:var(--primary);}
+.nbtn.amber:hover{transform:translateY(-1px);}
+.nbtn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:76px;}
+.sb-card{background:white;border-radius:18px;box-shadow:0 4px 18px rgba(10,61,98,.08);padding:16px;}
+.sb-title{font-family:'Fredoka One';color:var(--primary);font-size:.95rem;margin-bottom:10px;}
+.prog-bar{background:var(--border);border-radius:20px;height:7px;margin-bottom:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),#27AE60);border-radius:20px;transition:width .4s;}
+.prog-txt{font-size:.76rem;color:var(--muted);font-weight:700;margin-bottom:12px;}
+.q-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.qdot{width:34px;height:34px;border-radius:7px;background:var(--light-bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;cursor:pointer;transition:all .15s;}
+.qdot:hover{transform:scale(1.1);}
+.qdot.current{background:var(--primary);border-color:var(--primary);color:white;}
+.qdot.answered{background:#3498DB;border-color:#3498DB;color:white;}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.leg{display:flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700;color:var(--muted);}
+.leg-dot{width:10px;height:10px;border-radius:3px;}
+.neet-summary{background:var(--light-bg);border-radius:12px;padding:10px 12px;margin-top:12px;}
+.nrow{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;padding:3px 0;}
+.nrow .nl{color:var(--muted);}
+.nrow .pv{color:var(--green);}
+.nrow .mv{color:var(--red);}
+.nrow .tv{color:var(--primary);font-family:'Fredoka One';font-size:.95rem;}
+.nrow.total-row{border-top:2px solid var(--border);margin-top:5px;padding-top:7px;}
+
+/* RESULTS */
+#results{padding:24px 16px 60px;max-width:740px;margin:0 auto;text-align:center;}
+.res-hero{background:var(--primary);border-radius:24px;padding:30px 24px;color:white;margin-bottom:20px;position:relative;overflow:hidden;}
+.res-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,.05);border-radius:50%;}
+.res-emoji{font-size:58px;margin-bottom:6px;}
+.res-title{font-family:'Fredoka One';font-size:1.8rem;margin-bottom:2px;}
+.res-name{opacity:.8;font-size:.95rem;margin-bottom:10px;}
+.res-score-big{font-family:'Fredoka One';font-size:3.5rem;color:var(--accent);line-height:1;}
+.res-out{font-size:.88rem;opacity:.75;margin-bottom:10px;}
+.grade-badge{display:inline-block;background:var(--accent);color:var(--primary);border-radius:50px;padding:5px 22px;font-family:'Fredoka One';font-size:1.3rem;margin-bottom:6px;}
+.res-msg{font-size:.9rem;opacity:.8;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat-c{background:white;border-radius:14px;padding:14px 8px;box-shadow:0 2px 10px rgba(10,61,98,.07);}
+.stat-v{font-family:'Fredoka One';font-size:1.8rem;}
+.stat-v.c{color:var(--green)}.stat-v.w{color:var(--red)}.stat-v.s{color:var(--muted)}.stat-v.vi{color:#E67E22;}
+.stat-l{font-size:.72rem;color:var(--muted);font-weight:700;}
+.rev-hd{font-family:'Fredoka One';font-size:1.3rem;color:var(--primary);text-align:left;margin-bottom:12px;}
+.rev-item{background:white;border-radius:14px;padding:14px 16px;margin-bottom:10px;text-align:left;box-shadow:0 2px 8px rgba(10,61,98,.06);border-left:4px solid var(--border);}
+.rev-item.ri-c{border-left-color:var(--green);}
+.rev-item.ri-w{border-left-color:var(--red);}
+.rev-item.ri-s{border-left-color:var(--muted);}
+.rev-q{font-weight:700;font-size:.88rem;margin-bottom:6px;}
+.rev-ans{font-size:.8rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.ra{border-radius:7px;padding:2px 9px;font-weight:700;}
+.ra.yours{background:#FDEDEC;color:#C0392B;}
+.ra.right{background:#E8F8F5;color:#148F77;}
+.ra.skp{background:#F0F0F0;color:var(--muted);}
+.ra.mp{color:var(--green);font-weight:800;}
+.ra.mm{color:var(--red);font-weight:800;}
+.ra.mz{color:var(--muted);font-weight:800;}
+.action-row{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
+.btn-retry{background:var(--primary);color:white;border:none;border-radius:50px;padding:12px 36px;font-family:'Fredoka One';font-size:1.1rem;cursor:pointer;box-shadow:0 5px 18px rgba(10,61,98,.25);transition:all .15s;}
+.btn-retry:hover{transform:translateY(-2px);}
+.btn-retry.green{background:var(--green);}
+
+/* TEACHER OVERLAY */
+#teacher-overlay{position:fixed;inset:0;background:rgba(10,61,98,.93);z-index:500;display:none;flex-direction:column;align-items:center;padding:20px;overflow-y:auto;}
+#teacher-overlay.show{display:flex;}
+.teacher-panel{background:white;border-radius:24px;width:100%;max-width:960px;padding:26px;margin:auto;}
+.teacher-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.teacher-hd h2{font-family:'Fredoka One';font-size:1.4rem;color:var(--primary);}
+.close-btn{background:var(--light-bg);border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;transition:background .15s;}
+.close-btn:hover{background:#FDEDEC;}
+.ts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.ts-card{background:var(--light-bg);border-radius:12px;padding:12px;text-align:center;}
+.ts-val{font-family:'Fredoka One';font-size:1.7rem;color:var(--primary);}
+.ts-lbl{font-size:.72rem;color:var(--muted);font-weight:700;}
+.teacher-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.btn-refresh{background:var(--green);color:white;border:none;border-radius:20px;padding:7px 18px;font-family:'Fredoka One';cursor:pointer;font-size:.9rem;transition:all .15s;}
+.btn-refresh:hover{transform:translateY(-1px);}
+.btn-clear-all{background:white;color:var(--red);border:2px solid var(--red);border-radius:20px;padding:6px 16px;font-family:'Fredoka One';cursor:pointer;font-size:.9rem;transition:all .15s;}
+.btn-clear-all:hover{background:#FDEDEC;}
+.refresh-note{font-size:.74rem;color:var(--muted);margin-left:auto;}
+.student-tbl{width:100%;border-collapse:collapse;font-size:.84rem;}
+.student-tbl th{background:var(--primary);color:white;padding:9px 12px;font-family:'Fredoka One';text-align:left;font-size:.8rem;}
+.student-tbl th:first-child{border-radius:8px 0 0 0;}
+.student-tbl th:last-child{border-radius:0 8px 0 0;}
+.student-tbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.student-tbl tr:last-child td{border:none;}
+.student-tbl tr:hover td{background:var(--light-bg);}
+.sbadge{border-radius:20px;padding:3px 10px;font-size:.74rem;font-weight:800;display:inline-block;}
+.sbadge.attempting{background:#FFF3CD;color:#856404;}
+.sbadge.completed{background:#D1ECE1;color:#155724;}
+.sbadge.auto{background:#F8D7DA;color:#721C24;}
+.vbadge{background:#FDEDEC;color:#C0392B;border-radius:20px;padding:2px 8px;font-size:.74rem;font-weight:800;}
+.sp{color:var(--green);font-weight:800;}
+.sn{color:var(--red);font-weight:800;}
+.empty-state{text-align:center;padding:40px;color:var(--muted);}
+.empty-state .es-icon{font-size:44px;margin-bottom:10px;}
+
+/* PASSWORD MODAL */
+#pass-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+#pass-modal.show{display:flex;}
+.pass-card{background:white;border-radius:20px;padding:30px 26px;max-width:340px;width:100%;text-align:center;}
+.pass-card h3{font-family:'Fredoka One';font-size:1.4rem;color:var(--primary);margin-bottom:6px;}
+.pass-card p{font-size:.85rem;color:var(--muted);margin-bottom:18px;}
+.pass-input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-family:'Nunito';font-size:1rem;font-weight:600;outline:none;margin-bottom:6px;transition:border .2s;text-align:center;letter-spacing:2px;}
+.pass-input:focus{border-color:var(--primary);}
+.pass-error{color:var(--red);font-size:.8rem;font-weight:700;min-height:18px;margin-bottom:10px;}
+.pass-btns{display:flex;gap:10px;}
+.pass-btns button{flex:1;border:none;border-radius:50px;padding:11px;font-family:'Fredoka One';font-size:.95rem;cursor:pointer;}
+.pass-btns .ok{background:var(--primary);color:white;}
+.pass-btns .cancel{background:var(--light-bg);color:var(--muted);}
+
+/* OVERLAYS */
+.full-overlay{position:fixed;inset:0;background:rgba(10,61,98,.95);z-index:400;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:white;}
+.full-overlay.show{display:flex;}
+.ov-icon{font-size:70px;margin-bottom:14px;}
+.ov-title{font-family:'Fredoka One';font-size:2rem;margin-bottom:8px;}
+.ov-msg{font-size:1rem;opacity:.85;max-width:380px;line-height:1.6;}
+.ov-sub{font-family:'Fredoka One';font-size:1.1rem;color:var(--accent);margin-top:10px;}
+.ov-btn{margin-top:22px;background:var(--accent);color:var(--primary);border:none;border-radius:50px;padding:13px 40px;font-family:'Fredoka One';font-size:1.1rem;cursor:pointer;}
+
+/* CHEAT MODAL */
+#cheat-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:450;display:none;align-items:center;justify-content:center;padding:20px;}
+#cheat-modal.show{display:flex;}
+.cheat-card{background:white;border-radius:20px;padding:30px 26px;max-width:370px;text-align:center;}
+.cheat-card .ci{font-size:50px;margin-bottom:8px;}
+.cheat-card h3{font-family:'Fredoka One';font-size:1.4rem;color:var(--red);margin-bottom:6px;}
+.viol-big{font-family:'Fredoka One';font-size:2.5rem;color:var(--red);}
+.viol-lbl{font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:12px;}
+.cheat-card p{font-size:.88rem;color:var(--text);margin-bottom:16px;line-height:1.6;}
+.cheat-card button{background:var(--primary);color:white;border:none;border-radius:50px;padding:12px 36px;font-family:'Fredoka One';font-size:1rem;cursor:pointer;width:100%;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--primary);color:white;border-radius:12px;padding:12px 18px;font-weight:700;font-size:.88rem;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;transform:translateX(120%);transition:transform .3s ease;max-width:280px;}
+.toast.show{transform:translateX(0);}
+.toast.tw{background:#E67E22;}
+.toast.td{background:var(--red);}
+
+@media(max-width:720px){
+  .quiz-grid{grid-template-columns:1fr;}
+  .sidebar{position:static;order:-1;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .ts-grid{grid-template-columns:1fr 1fr;}
+  .home-cards{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔭</div>
+    <div>
+      <span class="logo-name">Thulir Academy</span>
+      <span class="logo-sub">Foundational Science</span>
+    </div>
+  </div>
+  <div class="header-right" id="hdr-right"></div>
+</header>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="hicon">💡</div>
+  <h1>Refraction &amp; Mirrors</h1>
+  <p class="sub">CBSE Grade 10 Physics — Foundational Test</p>
+  <div class="home-cards">
+    <div class="info-card"><div class="val">34</div><div class="lbl">Questions</div></div>
+    <div class="info-card"><div class="val">136</div><div class="lbl">Max Marks</div></div>
+    <div class="info-card"><div class="val">90 min</div><div class="lbl">Duration</div></div>
+    <div class="info-card"><div class="val">+4 / −1</div><div class="lbl">NEET Marking</div></div>
+  </div>
+  <div class="home-btns">
+    <button class="btn-primary" onclick="showScreen('entry')">📝 Start Test</button>
+    <button class="btn-outline" onclick="openTeacherLogin()">👨‍🏫 Teacher View</button>
+  </div>
+</div>
+
+<!-- ENTRY -->
+<div id="entry" class="screen">
+  <div class="entry-card">
+    <h2>👤 Student Details</h2>
+    <div class="fg">
+      <label>Your Full Name</label>
+      <input type="text" id="student-name" placeholder="Enter your full name…" autocomplete="off" maxlength="60">
+    </div>
+    <div class="rules-box">
+      <h4>📋 Exam Rules</h4>
+      <div class="rule">🕐 <span>Duration: <strong>90 minutes</strong>. Timer pauses if you switch tabs or windows.</span></div>
+      <div class="rule">🖥️ <span>Test opens in <strong>fullscreen</strong>. Exiting fullscreen is flagged as a violation.</span></div>
+      <div class="rule">❌ <span>No right-click, copy-paste, keyboard shortcuts or external references.</span></div>
+      <div class="rule">⚠️ <span>Repeated violations auto-submit your paper.</span></div>
+      <div class="rule">📊 <span>Your performance and violations are visible to your teacher in real time.</span></div>
+    </div>
+    <h4 style="font-family:'Fredoka One';color:var(--primary);margin-bottom:8px;font-size:.95rem;">📊 NEET-Style Marking Scheme</h4>
+    <table class="marking-tbl">
+      <tr><th>Response</th><th>Marks</th></tr>
+      <tr><td>✅ Correct Answer</td><td style="color:var(--green)">+4</td></tr>
+      <tr><td>❌ Wrong Answer</td><td style="color:var(--red)">−1</td></tr>
+      <tr><td>⏭️ Not Attempted</td><td style="color:var(--muted)">0</td></tr>
+    </table>
+    <label class="agree-row">
+      <input type="checkbox" id="agree-check">
+      I have read and agree to the exam rules.
+    </label>
+    <div class="entry-btns">
+      <button class="btn-primary" style="width:100%" onclick="beginQuiz()">🚀 Begin Test</button>
+      <button class="btn-outline" style="width:100%" onclick="showScreen('home')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-wrap" class="screen">
+  <div class="quiz-grid">
+    <div>
+      <div class="q-card" id="q-card">
+        <div class="q-meta">
+          <span class="q-num" id="q-num-lbl">Q 1</span>
+          <div class="q-tags">
+            <span class="tag topic" id="q-topic-tag">Topic</span>
+            <span class="tag marks">+4 / −1</span>
+          </div>
+        </div>
+        <div class="q-text" id="q-text-el"></div>
+        <div class="options" id="options-el"></div>
+        <div class="nav-row">
+          <button class="nbtn ghost" id="btn-prev" onclick="goTo(currentQ-1)">← Prev</button>
+          <button class="nbtn clear" onclick="clearAnswer()">✕ Clear</button>
+          <button class="nbtn solid" id="btn-next" onclick="goTo(currentQ+1)">Next →</button>
+          <button class="nbtn amber" id="btn-submit" style="display:none" onclick="confirmSubmit()">🏁 Submit</button>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sb-card">
+        <div class="sb-title">📊 Progress</div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-txt" id="prog-txt">0 of 40 answered</div>
+        <div class="q-grid" id="q-dot-grid"></div>
+        <div class="legend">
+          <div class="leg"><div class="leg-dot" style="background:#3498DB"></div>Answered</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--light-bg);border:2px solid var(--border)"></div>Unvisited</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--primary)"></div>Current</div>
+        </div>
+        <div class="neet-summary">
+          <div class="nrow"><span class="nl">Correct (+4)</span><span class="pv" id="ns-c">0</span></div>
+          <div class="nrow"><span class="nl">Wrong (−1)</span><span class="mv" id="ns-w">0</span></div>
+          <div class="nrow"><span class="nl">Skipped</span><span class="nl" id="ns-s">40</span></div>
+          <div class="nrow total-row"><span class="nl" style="color:var(--primary);font-weight:800">Live Score</span><span class="tv" id="ns-score">0 / 160</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="res-hero">
+    <div class="res-emoji" id="r-emoji">🎉</div>
+    <div class="res-title" id="r-title">Well Done!</div>
+    <div class="res-name" id="r-name"></div>
+    <div class="res-score-big" id="r-score-big">0</div>
+    <div class="res-out">out of 160 marks</div>
+    <div class="grade-badge" id="r-grade">Grade A</div>
+    <div class="res-msg" id="r-msg"></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-c"><div class="stat-v c" id="r-correct">0</div><div class="stat-l">✅ Correct</div></div>
+    <div class="stat-c"><div class="stat-v w" id="r-wrong">0</div><div class="stat-l">❌ Wrong</div></div>
+    <div class="stat-c"><div class="stat-v s" id="r-skip">0</div><div class="stat-l">⏭️ Skipped</div></div>
+    <div class="stat-c"><div class="stat-v vi" id="r-viol">0</div><div class="stat-l">⚠️ Violations</div></div>
+  </div>
+  <div class="rev-hd">📝 Detailed Review</div>
+  <div id="review-list"></div>
+  <div class="action-row">
+    <button class="btn-retry" onclick="showScreen('home')">🏠 Home</button>
+    <button class="btn-retry green" onclick="retryQuiz()">🔄 Retry</button>
+  </div>
+</div>
+
+<!-- TEACHER OVERLAY -->
+<div id="teacher-overlay">
+  <div class="teacher-panel">
+    <div class="teacher-hd">
+      <h2>👨‍🏫 Teacher Dashboard — Refraction &amp; Mirrors</h2>
+      <button class="close-btn" onclick="closeTeacher()">✕</button>
+    </div>
+    <div class="ts-grid">
+      <div class="ts-card"><div class="ts-val" id="ts-total">0</div><div class="ts-lbl">Total Students</div></div>
+      <div class="ts-card"><div class="ts-val" id="ts-attempting" style="color:#856404">0</div><div class="ts-lbl">🔄 Attempting</div></div>
+      <div class="ts-card"><div class="ts-val" id="ts-completed" style="color:#155724">0</div><div class="ts-lbl">✅ Completed</div></div>
+      <div class="ts-card"><div class="ts-val" id="ts-avg">—</div><div class="ts-lbl">Avg Score</div></div>
+    </div>
+    <div class="teacher-actions">
+      <button class="btn-refresh" onclick="refreshTeacher()">🔄 Refresh</button>
+      <button class="btn-clear-all" onclick="clearAllRecords()">🗑️ Clear All</button>
+      <span class="refresh-note" id="refresh-note">Auto-refreshes every 10s</span>
+    </div>
+    <div id="t-table-wrap">
+      <div class="empty-state" id="t-empty">
+        <div class="es-icon">📋</div>
+        <div style="font-weight:700">No student data yet.</div>
+        <div style="font-size:.85rem;margin-top:4px">Students will appear here once they start the test.</div>
+      </div>
+      <table class="student-tbl" id="student-tbl" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th><th>Student Name</th><th>Status</th>
+            <th>Score (/160)</th><th>✅ Correct</th><th>❌ Wrong</th>
+            <th>⏭️ Skipped</th><th>⚠️ Violations</th><th>Time</th>
+          </tr>
+        </thead>
+        <tbody id="student-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER PASSWORD MODAL -->
+<div id="pass-modal">
+  <div class="pass-card">
+    <div style="font-size:44px;margin-bottom:8px">🔐</div>
+    <h3>Teacher Access</h3>
+    <p>Enter your teacher access code to view the dashboard.</p>
+    <input type="password" class="pass-input" id="pass-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+    <div class="pass-error" id="pass-error"></div>
+    <div class="pass-btns">
+      <button class="cancel" onclick="closePassModal()">Cancel</button>
+      <button class="ok" onclick="checkPassword()">Enter ↵</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAUSED OVERLAY -->
+<div class="full-overlay" id="paused-overlay">
+  <div class="ov-icon">⏸️</div>
+  <div class="ov-title">Test Paused</div>
+  <div class="ov-msg">You navigated away from the test window. This has been logged as a violation. Return immediately to continue.</div>
+  <div class="ov-sub" id="paused-viol-txt"></div>
+  <button class="ov-btn" onclick="returnFromPause()">▶️ Return to Test</button>
+</div>
+
+<!-- TIME UP OVERLAY -->
+<div class="full-overlay" id="timeup-overlay">
+  <div class="ov-icon">⏰</div>
+  <div class="ov-title">Time's Up!</div>
+  <div class="ov-msg">Your 90 minutes are over. Answers have been saved and submitted automatically.</div>
+  <button class="ov-btn" onclick="finishQuiz('timeout')">📊 See My Results</button>
+</div>
+
+<!-- CHEAT MODAL -->
+<div id="cheat-modal">
+  <div class="cheat-card">
+    <div class="ci">⚠️</div>
+    <h3>Violation Detected!</h3>
+    <div class="viol-big" id="cheat-count">0</div>
+    <div class="viol-lbl">violations recorded</div>
+    <p id="cheat-msg">Suspicious activity has been flagged and your teacher will be notified.</p>
+    <button onclick="closeCheatModal()">I Understand — Continue</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONSTANTS ───────────────────────────
+const TOTAL_Q = 34;
+const DURATION = 90 * 60;
+const M_CORRECT = 4;
+const M_WRONG = -1;
+const MAX_MARKS = TOTAL_Q * M_CORRECT; // 160
+const TEACHER_PASS = "Thulir2024";
+const STORE_KEY = "thulir_quiz_v3";
+const THRESH_WARN = 3;
+const THRESH_MODAL = 5;
+const THRESH_AUTO = 8;
+
+// ─── QUESTIONS ───────────────────────────
+const questions = [
+  {q:"Positive magnification (m = +ve) produced by a mirror indicates the image is:",opts:["Real image","Virtual image","Magnified image","Diminished image"],ans:1,topic:"Magnification"},
+  {q:"An object is placed on the principal axis of a concave mirror at a distance of 1.5f. The image will form at:",opts:["3f","−3f","1.5f","−1.5f"],ans:1,topic:"Mirror Formula"},
+  {q:"Rays from the sun converge 15 cm in front of a concave mirror. For image size = object size, the object should be placed:",opts:["15 cm in front","30 cm in front","Between 15 and 30 cm","More than 30 cm"],ans:1,topic:"Concave Mirror"},
+  {q:"In which of the following is a concave mirror used?",opts:["Solar cooker","Rear-view mirror in vehicles","Safety mirror in shopping malls","Viewing full-size image of distant buildings"],ans:0,topic:"Applications"},
+  {q:"A man of height 2.5 m observes an erect image of height 1 m. The mirror used is:",opts:["Concave","Convex","Plane","None of these"],ans:1,topic:"Convex Mirror"},
+  {q:"A ray strikes a mirror where the mirror surface makes 35° with the incident ray. The angles of incidence and reflection are:",opts:["45°, 40°","55°, 55°","60°, 60°","30°, 30°"],ans:1,topic:"Laws of Reflection"},
+  {q:"A man stands 0.5 m in front of a plane mirror. The distance between the man and his image is:",opts:["0.5 m","1 m","2 m","0.25 m"],ans:1,topic:"Plane Mirror"},
+  {q:"Which type of mirror is used as a shaving mirror?",opts:["Convex","Concave","Plane","Both convex and concave"],ans:1,topic:"Applications"},
+  {q:"The relation between focal length f and radius of curvature R for a spherical mirror is:",opts:["f = R","f = 2R","f = R/2","f = R/3"],ans:2,topic:"Mirror Formula"},
+  {q:"If |m| > 1 for a mirror, the image is:",opts:["Diminished","Same size as object","Magnified","Point-sized"],ans:2,topic:"Magnification"},
+  {q:"A convex mirror always forms an image that is:",opts:["Real and erect","Virtual and erect","Real and inverted","Virtual and inverted"],ans:1,topic:"Convex Mirror"},
+  {q:"Magnification of a mirror is defined as:",opts:["Image height / Object height","Object height / Image height","Image distance / Object distance","Object distance / Image distance"],ans:0,topic:"Magnification"},
+  {q:"Refractive indices of water and diamond relative to air are 1.33 and 2.4. The refractive index of diamond relative to water is:",opts:["5.5","1.80","3.19","None of these"],ans:1,topic:"Refractive Index"},
+  {q:"When light passes from denser to rarer medium (μ₁ denser, μ₂ rarer), which is correct?",opts:["sin i / sin r = μ₂/μ₁, r > i","sin i / sin r = μ₁/μ₂, i = r","sin i / sin r = μ₁/μ₂, i > r","sin i / sin r = 2, i = r"],ans:0,topic:"Snell's Law"},
+  {q:"Light of velocity v in air enters glass of refractive index μ. Velocity inside glass is:",opts:["v/μ","2v/μ","v/2μ","v (unchanged)"],ans:0,topic:"Refraction"},
+  {q:"Light is incident on an air-water interface at 25° to the normal. Angle of refracted ray with normal is approximately:",opts:["19°","34°","25°","90°"],ans:0,topic:"Refraction"},
+  {q:"Radius of curvature of a spherical mirror is 20 cm. Its focal length is:",opts:["20 cm","40 cm","10 cm","5 cm"],ans:2,topic:"Mirror Formula"},
+  {q:"Which mirror can produce an erect and enlarged image of an object?",opts:["Convex mirror","Plane mirror","Concave mirror","None of the above"],ans:2,topic:"Concave Mirror"},
+  {q:"Why is a convex mirror preferred as a rear-view mirror?",opts:["It forms real images","It forms virtual, erect, small images giving wider field of view","It magnifies objects behind","It is cheaper"],ans:1,topic:"Applications"},
+  {q:"Focal length of a convex mirror with radius of curvature 32 cm is:",opts:["64 cm","32 cm","8 cm","16 cm"],ans:3,topic:"Mirror Formula"},
+  {q:"Light enters air to glass (n = 1.50). Speed in glass is: (c = 3×10⁸ m/s)",opts:["2×10⁸ m/s","3×10⁸ m/s","4.5×10⁸ m/s","1.5×10⁸ m/s"],ans:0,topic:"Refraction"},
+  {q:"Among kerosene, turpentine and water, light travels fastest in:",opts:["Kerosene","Turpentine","Water","Same in all three"],ans:2,topic:"Refractive Index"},
+  {q:"A concave mirror produces a 3× magnified real image of an object at 10 cm. Image is at:",opts:["10 cm","20 cm","30 cm","40 cm"],ans:2,topic:"Mirror Formula"},
+  {q:"The mirror formula is:",opts:["1/v + 1/u = 1/f","1/v − 1/u = 1/f","v + u = f","v × u = f"],ans:0,topic:"Mirror Formula"},
+  {q:"By the New Cartesian Sign Convention, focal length of a concave mirror is:",opts:["Positive","Negative","Zero","Depends on object position"],ans:1,topic:"Sign Convention"},
+  {q:"When m = −2 for a mirror, the image is:",opts:["Virtual and magnified","Real, inverted and magnified","Virtual and diminished","Real and erect"],ans:1,topic:"Magnification"},
+  {q:"Which of the following uses a convex mirror?",opts:["Shaving mirror","Solar furnace","Rear-view mirror in vehicles","Ophthalmoscope"],ans:2,topic:"Applications"},
+  {q:"The angle of incidence equals the angle of reflection. This is the:",opts:["Snell's Law","Law of Refraction","Law of Reflection","Brewster's Law"],ans:2,topic:"Laws of Reflection"},
+  {q:"When m = −1/2 for a mirror, the image is:",opts:["Real, inverted and diminished","Virtual, erect and magnified","Real, inverted and magnified","Virtual, erect and diminished"],ans:0,topic:"Magnification"},
+  {q:"Refractive index of a medium is defined as:",opts:["Speed of light in medium / Speed in vacuum","Speed in vacuum / Speed of light in medium","Wavelength in medium / Wavelength in vacuum","Frequency in medium / Frequency in vacuum"],ans:1,topic:"Refractive Index"},
+  {q:"The principal axis of a spherical mirror is:",opts:["The reflecting curved surface","Line through pole and centre of curvature","Line perpendicular to mirror at its edge","None of these"],ans:1,topic:"Mirrors"},
+  {q:"When an object is placed beyond C of a concave mirror, image forms:",opts:["Between F and C","Beyond C","At C","At F"],ans:0,topic:"Concave Mirror"},
+  {q:"Which phenomenon primarily causes a rainbow?",opts:["Reflection only","Refraction and dispersion of light","Total internal reflection only","Diffraction of light"],ans:1,topic:"Light Phenomena"},
+  {q:"When light travels from glass to air, it bends:",opts:["Towards the normal","Away from the normal","Along the normal without bending","Depends on colour only"],ans:1,topic:"Refraction"}
+];
+
+// ─── STATE ───────────────────────────────
+let currentQ = 0;
+let userAnswers = new Array(TOTAL_Q).fill(-1);
+let remainingSeconds = DURATION;
+let timerInterval = null;
+let quizActive = false;
+let isPaused = false;
+let pausedByVisibility = false;
+let studentName = '';
+let sessionId = '';
+let violations = [];
+let violationCount = 0;
+let cheatModalOpen = false;
+let teacherInterval = null;
+let quizStartTime = null;
+
+// ─── SCREEN MANAGEMENT ───────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateHeader(id);
+}
+
+function updateHeader(screen) {
+  const hr = document.getElementById('hdr-right');
+  if (screen === 'quiz-wrap') {
+    hr.innerHTML = `
+      <div class="hchip viol-chip" id="hdr-viol">⚠️ <span id="hdr-viol-n">0</span></div>
+      <div class="hchip score-chip" id="hdr-score">⭐ 0 / 160</div>
+      <div class="hchip timer-chip" id="hdr-timer">90:00</div>`;
+  } else {
+    hr.innerHTML = '';
+  }
+}
+
+// ─── BEGIN QUIZ ───────────────────────────
+function beginQuiz() {
+  const nameEl = document.getElementById('student-name');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); showToast('Please enter your name!','tw'); return; }
+  if (!document.getElementById('agree-check').checked) { showToast('Please agree to the exam rules.','tw'); return; }
+  studentName = name;
+  sessionId = Date.now() + '_' + Math.random().toString(36).substr(2,6);
+  userAnswers = new Array(TOTAL_Q).fill(-1);
+  remainingSeconds = DURATION;
+  violations = []; violationCount = 0;
+  currentQ = 0; quizStartTime = Date.now();
+  saveRecord('attempting');
+  showScreen('quiz-wrap');
+  buildDotGrid();
+  loadQ(0);
+  startTick();
+  quizActive = true;
+  requestFS();
+}
+
+// ─── QUESTION RENDERING ──────────────────
+function buildDotGrid() {
+  const g = document.getElementById('q-dot-grid');
+  g.innerHTML = '';
+  for (let i = 0; i < TOTAL_Q; i++) {
+    const d = document.createElement('div');
+    d.className = 'qdot'; d.id = 'dot-'+i; d.textContent = i+1;
+    d.onclick = () => goTo(i);
+    g.appendChild(d);
+  }
+}
+
+function loadQ(idx) {
+  if (idx < 0 || idx >= TOTAL_Q) return;
+  currentQ = idx;
+  const q = questions[idx];
+  document.getElementById('q-num-lbl').textContent = 'Q ' + (idx+1);
+  document.getElementById('q-topic-tag').textContent = q.topic;
+  document.getElementById('q-text-el').textContent = q.q;
+  const oel = document.getElementById('options-el');
+  oel.innerHTML = '';
+  ['A','B','C','D'].forEach((lbl, i) => {
+    const d = document.createElement('div');
+    d.className = 'option' + (userAnswers[idx] === i ? ' selected' : '');
+    d.innerHTML = `<div class="opt-lbl">${lbl}</div><span style="flex:1">${q.opts[i]}</span>`;
+    d.onclick = () => selectOpt(i);
+    oel.appendChild(d);
+  });
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').style.display = idx < TOTAL_Q-1 ? '' : 'none';
+  document.getElementById('btn-submit').style.display = idx === TOTAL_Q-1 ? '' : 'none';
+  updateDots(); updateProgress(); updateNEET();
+}
+
+function goTo(idx) { if (idx >= 0 && idx < TOTAL_Q) loadQ(idx); }
+
+function selectOpt(i) {
+  userAnswers[currentQ] = i;
+  document.querySelectorAll('.option').forEach((o,j) => {
+    o.classList.toggle('selected', j === i);
+  });
+  updateDots(); updateProgress(); updateNEET();
+  saveRecord('attempting');
+  if (currentQ < TOTAL_Q - 1) setTimeout(() => goTo(currentQ + 1), 340);
+}
+
+function clearAnswer() {
+  userAnswers[currentQ] = -1;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  updateDots(); updateProgress(); updateNEET();
+  saveRecord('attempting');
+}
+
+function updateDots() {
+  for (let i = 0; i < TOTAL_Q; i++) {
+    const d = document.getElementById('dot-'+i);
+    if (!d) continue;
+    d.className = 'qdot';
+    if (i === currentQ) d.classList.add('current');
+    else if (userAnswers[i] !== -1) d.classList.add('answered');
+  }
+}
+
+function updateProgress() {
+  const ans = userAnswers.filter(a => a !== -1).length;
+  document.getElementById('prog-fill').style.width = (ans/TOTAL_Q*100)+'%';
+  document.getElementById('prog-txt').textContent = ans + ' of ' + TOTAL_Q + ' answered';
+}
+
+function updateNEET() {
+  let c=0, w=0, s=0;
+  userAnswers.forEach((a,i) => { if(a===-1)s++; else if(a===questions[i].ans)c++; else w++; });
+  const score = c * M_CORRECT + w * M_WRONG;
+  const ns = document.getElementById('ns-c');
+  if (ns) {
+    document.getElementById('ns-c').textContent = c + ' (+' + (c*M_CORRECT) + ')';
+    document.getElementById('ns-w').textContent = w + ' (' + (w*M_WRONG) + ')';
+    document.getElementById('ns-s').textContent = s;
+    document.getElementById('ns-score').textContent = score + ' / ' + MAX_MARKS;
+    const sc = document.getElementById('hdr-score');
+    if (sc) sc.textContent = '⭐ ' + score + ' / ' + MAX_MARKS;
+  }
+}
+
+// ─── TIMER ───────────────────────────────
+function startTick() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    if (!isPaused) {
+      remainingSeconds--;
+      updateTimerDisplay();
+      if (remainingSeconds % 30 === 0) saveRecord('attempting');
+      if (remainingSeconds <= 0) { clearInterval(timerInterval); timerInterval = null; handleTimeUp(); }
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('hdr-timer');
+  if (!el) return;
+  const m = Math.floor(remainingSeconds/60), s = remainingSeconds%60;
+  el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  el.className = 'hchip timer-chip';
+  if (remainingSeconds <= 600) el.classList.add('warn');
+  if (remainingSeconds <= 120) el.classList.add('crit');
+}
+
+function handleTimeUp() {
+  document.getElementById('timeup-overlay').classList.add('show');
+}
+
+// ─── SUBMIT ───────────────────────────────
+function confirmSubmit() {
+  const unanswered = userAnswers.filter(a => a === -1).length;
+  if (unanswered > 0 && !confirm(unanswered + ' question(s) unanswered. Submit anyway?')) return;
+  finishQuiz('manual');
+}
+
+function finishQuiz(reason) {
+  quizActive = false; isPaused = false;
+  clearInterval(timerInterval); timerInterval = null;
+  document.getElementById('timeup-overlay').classList.remove('show');
+  document.getElementById('paused-overlay').classList.remove('show');
+  saveRecord(reason === 'auto' ? 'auto-submitted' : 'completed');
+  showResults();
+  showScreen('results');
+  exitFS();
+}
+
+// ─── RESULTS ─────────────────────────────
+function showResults() {
+  let c=0, w=0, s=0;
+  userAnswers.forEach((a,i) => { if(a===-1)s++; else if(a===questions[i].ans)c++; else w++; });
+  const score = c*M_CORRECT + w*M_WRONG;
+  const pct = score / MAX_MARKS * 100;
+  let grade,emoji,title,msg;
+  if(pct>=90){grade='A+';emoji='🏆';title='Outstanding!';msg='Exceptional mastery of Refraction & Mirrors!';}
+  else if(pct>=75){grade='A';emoji='🎉';title='Excellent!';msg='Great understanding. Keep shining!';}
+  else if(pct>=60){grade='B';emoji='😊';title='Good Work!';msg='Solid foundation — review the topics you missed.';}
+  else if(pct>=45){grade='C';emoji='📚';title='Keep Practising!';msg='More revision will get you there. Don\'t give up!';}
+  else{grade='D';emoji='💪';title='More Practice Needed';msg='Go through the chapter carefully and try again.';}
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-name').textContent = '👤 ' + studentName;
+  document.getElementById('r-score-big').textContent = score;
+  document.getElementById('r-grade').textContent = 'Grade ' + grade;
+  document.getElementById('r-msg').textContent = msg;
+  document.getElementById('r-correct').textContent = c;
+  document.getElementById('r-wrong').textContent = w;
+  document.getElementById('r-skip').textContent = s;
+  document.getElementById('r-viol').textContent = violationCount;
+  const rl = document.getElementById('review-list');
+  rl.innerHTML = '';
+  const lbls = ['A','B','C','D'];
+  questions.forEach((q,i) => {
+    const ua = userAnswers[i], ca = q.ans;
+    const ok = ua === ca, skp = ua === -1;
+    const cls = skp?'ri-s':(ok?'ri-c':'ri-w');
+    const icon = skp?'⏭️':(ok?'✅':'❌');
+    const markEl = skp?'<span class="ra mz">0 marks</span>':(ok?'<span class="ra mp">+4</span>':'<span class="ra mm">−1</span>');
+    let ansHtml = skp
+      ? `<span class="ra skp">Not attempted</span><span class="ra right">✓ ${lbls[ca]}. ${q.opts[ca]}</span>`
+      : (ok
+        ? `<span class="ra right">✓ ${lbls[ua]}. ${q.opts[ua]}</span>`
+        : `<span class="ra yours">✗ ${lbls[ua]}. ${q.opts[ua]}</span><span class="ra right">✓ ${lbls[ca]}. ${q.opts[ca]}</span>`);
+    rl.innerHTML += `<div class="rev-item ${cls}"><div class="rev-q">${icon} Q${i+1} [${q.topic}]: ${q.q}</div><div class="rev-ans">${ansHtml}${markEl}</div></div>`;
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function retryQuiz() {
+  document.getElementById('student-name').value = '';
+  document.getElementById('agree-check').checked = false;
+  showScreen('entry');
+}
+
+// ─── ANTI-CHEAT ──────────────────────────
+function logViolation(type) {
+  if (!quizActive) return;
+  violations.push({type, time: new Date().toLocaleTimeString()});
+  violationCount++;
+  const vn = document.getElementById('hdr-viol-n');
+  if (vn) {
+    vn.textContent = violationCount;
+    const chip = document.getElementById('hdr-viol');
+    if (chip) { chip.classList.add('shake'); setTimeout(()=>chip.classList.remove('shake'),400); }
+  }
+  saveRecord('attempting');
+  if (violationCount === THRESH_WARN) showToast('⚠️ Warning: '+violationCount+' violations logged!','tw');
+  if (violationCount === THRESH_MODAL) showCheatModal();
+  if (violationCount >= THRESH_AUTO) {
+    showToast('🚫 Too many violations. Auto-submitting…','td');
+    setTimeout(()=>finishQuiz('auto'), 2200);
+  }
+}
+
+function showCheatModal() {
+  if (cheatModalOpen) return;
+  cheatModalOpen = true;
+  document.getElementById('cheat-count').textContent = violationCount;
+  const rem = THRESH_AUTO - violationCount;
+  document.getElementById('cheat-msg').textContent = `This has been flagged and your teacher will see it. ${rem} more violation(s) will cause automatic submission.`;
+  document.getElementById('cheat-modal').classList.add('show');
+}
+
+function closeCheatModal() {
+  cheatModalOpen = false;
+  document.getElementById('cheat-modal').classList.remove('show');
+}
+
+function showPausedOverlay() {
+  if (!quizActive) return;
+  document.getElementById('paused-viol-txt').textContent = '⚠️ ' + violationCount + ' violation' + (violationCount!==1?'s':'') + ' recorded';
+  document.getElementById('paused-overlay').classList.add('show');
+}
+
+function returnFromPause() {
+  document.getElementById('paused-overlay').classList.remove('show');
+  isPaused = false; pausedByVisibility = false;
+}
+
+// Tab / window switch
+document.addEventListener('visibilitychange', () => {
+  if (!quizActive) return;
+  if (document.hidden) {
+    if (!pausedByVisibility) {
+      pausedByVisibility = true; isPaused = true;
+      logViolation('Tab switched / window hidden');
+      showPausedOverlay();
+    }
+  } else {
+    if (pausedByVisibility) {
+      pausedByVisibility = false; isPaused = false;
+      document.getElementById('paused-overlay').classList.remove('show');
+    }
+  }
+});
+
+window.addEventListener('blur', () => {
+  if (!quizActive || pausedByVisibility) return;
+  isPaused = true;
+  logViolation('Window lost focus');
+  showPausedOverlay();
+});
+
+window.addEventListener('focus', () => {
+  if (!quizActive) return;
+  if (!pausedByVisibility) { isPaused = false; document.getElementById('paused-overlay').classList.remove('show'); }
+});
+
+// Right-click
+document.addEventListener('contextmenu', e => {
+  if (!quizActive) return;
+  e.preventDefault();
+  logViolation('Right-click attempt');
+  showToast('❌ Right-click is disabled during the test.','tw');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (!quizActive) return;
+  const blocked = (e.ctrlKey && ['c','v','a','x','u','p','s'].includes(e.key.toLowerCase()))
+    || e.key==='F12'
+    || (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()))
+    || (e.ctrlKey && e.key.toLowerCase()==='p');
+  if (blocked) {
+    e.preventDefault();
+    logViolation('Blocked shortcut: ' + (e.ctrlKey?'Ctrl+':'') + (e.shiftKey?'Shift+':'') + e.key);
+    showToast('❌ Keyboard shortcuts are disabled.','tw');
+  }
+});
+
+// Fullscreen
+function requestFS() {
+  try {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || function(){}).call(el);
+  } catch(e){}
+}
+
+function exitFS() {
+  try { (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || function(){}).call(document); } catch(e){}
+}
+
+document.addEventListener('fullscreenchange', () => {
+  if (!quizActive) return;
+  if (!document.fullscreenElement) {
+    logViolation('Exited fullscreen');
+    showToast('⚠️ Fullscreen exited — returning to fullscreen.','tw');
+    setTimeout(()=>{ if(quizActive) requestFS(); }, 800);
+  }
+});
+
+// ─── LOCAL STORAGE ───────────────────────
+function saveRecord(status) {
+  if (!sessionId) return;
+  const records = getRecords();
+  const idx = records.findIndex(r => r.sessionId === sessionId);
+  let c=0,w=0,s=0;
+  userAnswers.forEach((a,i) => { if(a===-1)s++; else if(a===questions[i].ans)c++; else w++; });
+  const record = {
+    sessionId, name: studentName, status,
+    startTime: quizStartTime, endTime: status!=='attempting'?Date.now():null,
+    timeTakenSeconds: Math.floor((Date.now()-quizStartTime)/1000),
+    remainingSeconds, score: c*M_CORRECT+w*M_WRONG,
+    correct:c, wrong:w, skip:s,
+    violations:[...violations], violationCount
+  };
+  if (idx>=0) records[idx]=record; else records.push(record);
+  localStorage.setItem(STORE_KEY, JSON.stringify(records));
+}
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)||'[]'); } catch{ return []; }
+}
+
+// ─── TEACHER DASHBOARD ───────────────────
+function openTeacherLogin() {
+  document.getElementById('pass-modal').classList.add('show');
+  document.getElementById('pass-input').value='';
+  document.getElementById('pass-error').textContent='';
+  setTimeout(()=>document.getElementById('pass-input').focus(),100);
+}
+
+function closePassModal() { document.getElementById('pass-modal').classList.remove('show'); }
+
+function checkPassword() {
+  if (document.getElementById('pass-input').value === TEACHER_PASS) {
+    closePassModal();
+    document.getElementById('teacher-overlay').classList.add('show');
+    refreshTeacher();
+    teacherInterval = setInterval(refreshTeacher, 10000);
+  } else {
+    document.getElementById('pass-error').textContent='❌ Incorrect access code.';
+    document.getElementById('pass-input').value='';
+    document.getElementById('pass-input').focus();
+  }
+}
+
+document.getElementById('pass-input').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPassword(); });
+
+function closeTeacher() {
+  document.getElementById('teacher-overlay').classList.remove('show');
+  clearInterval(teacherInterval);
+}
+
+function refreshTeacher() {
+  const records = getRecords();
+  const total = records.length;
+  const attempting = records.filter(r=>r.status==='attempting').length;
+  const completed = records.filter(r=>r.status!=='attempting').length;
+  const scores = records.filter(r=>r.status!=='attempting').map(r=>r.score);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+  document.getElementById('ts-total').textContent = total;
+  document.getElementById('ts-attempting').textContent = attempting;
+  document.getElementById('ts-completed').textContent = completed;
+  document.getElementById('ts-avg').textContent = avg!==null?avg:'—';
+  document.getElementById('refresh-note').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+  if (total===0) {
+    document.getElementById('t-empty').style.display='block';
+    document.getElementById('student-tbl').style.display='none';
+    return;
+  }
+  document.getElementById('t-empty').style.display='none';
+  document.getElementById('student-tbl').style.display='table';
+  const tbody = document.getElementById('student-tbody');
+  tbody.innerHTML='';
+  [...records].sort((a,b)=>(b.endTime||b.startTime)-(a.endTime||a.startTime)).forEach((r,i) => {
+    const sCls = r.status==='attempting'?'attempting':(r.status==='auto-submitted'?'auto':'completed');
+    const sLbl = r.status==='attempting'?'🔄 Attempting':(r.status==='auto-submitted'?'🚫 Auto-Submitted':'✅ Completed');
+    const sCls2 = r.score>=0?'sp':'sn';
+    const t = r.timeTakenSeconds;
+    const tStr = r.status==='attempting'
+      ? Math.floor(t/60)+'m '+t%60+'s elapsed'
+      : Math.floor(t/60)+'m '+t%60+'s';
+    tbody.innerHTML += `<tr>
+      <td><strong>${i+1}</strong></td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td><span class="sbadge ${sCls}">${sLbl}</span></td>
+      <td><span class="${sCls2}">${r.score} / ${MAX_MARKS}</span></td>
+      <td style="color:var(--green);font-weight:700">${r.correct}</td>
+      <td style="color:var(--red);font-weight:700">${r.wrong}</td>
+      <td style="color:var(--muted);font-weight:700">${r.skip}</td>
+      <td>${r.violationCount>0?`<span class="vbadge">⚠️ ${r.violationCount}</span>`:'<span style="color:var(--green);font-weight:700">✓ 0</span>'}</td>
+      <td style="font-family:'Roboto Mono';font-size:.8rem">${tStr}</td>
+    </tr>`;
+  });
+}
+
+function clearAllRecords() {
+  if (confirm('Delete ALL student records? This cannot be undone.')) {
+    localStorage.removeItem(STORE_KEY);
+    refreshTeacher();
+    showToast('All records cleared.','tw');
+  }
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── TOAST ───────────────────────────────
+let toastTmr = null;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type==='tw'?' tw':(type==='td'?' td':''));
+  if (toastTmr) clearTimeout(toastTmr);
+  toastTmr = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
